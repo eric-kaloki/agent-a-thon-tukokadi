@@ -1,11 +1,16 @@
+import os
+os.environ["GOOGLE_API_KEY"] = "AIzaSyB6t9fYc7h1zcfN9t1EhhWrFD247vql2II"
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import agent_tool
 from google.adk.tools import VertexAiSearchTool
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
 
 # Specialized Agents for Search
 mwalimu_vertex_ai_search_agent = LlmAgent(
   name='Mwalimu_vertex_ai_search_agent',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='Agent specialized in performing Vertex AI Search.',
   sub_agents=[],
   instruction='Use the VertexAISearchTool to find information using Vertex AI Search.',
@@ -18,7 +23,7 @@ mwalimu_vertex_ai_search_agent = LlmAgent(
 
 mwenza_vertex_ai_search_agent = LlmAgent(
   name='MWENZA_vertex_ai_search_agent',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='Agent specialized in performing Vertex AI Search.',
   sub_agents=[],
   instruction='Use the VertexAISearchTool to find information using Vertex AI Search.',
@@ -31,7 +36,7 @@ mwenza_vertex_ai_search_agent = LlmAgent(
 
 kiongozi_vertex_ai_search_agent = LlmAgent(
   name='KIONGOZI_vertex_ai_search_agent',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='Agent specialized in performing Vertex AI Search.',
   sub_agents=[],
   instruction='Use the VertexAISearchTool to find information using Vertex AI Search.',
@@ -44,7 +49,7 @@ kiongozi_vertex_ai_search_agent = LlmAgent(
 
 ukweli_vertex_ai_search_agent = LlmAgent(
   name='Ukweli_vertex_ai_search_agent',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='Agent specialized in performing Vertex AI Search.',
   sub_agents=[],
   instruction='Use the VertexAISearchTool to find information using Vertex AI Search.',
@@ -58,7 +63,7 @@ ukweli_vertex_ai_search_agent = LlmAgent(
 # Core Domain Agents
 mwalimu = LlmAgent(
   name='mwalimu',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='You are Mwalimu, a gamified civic education agent for Kenyan voters.',
   sub_agents=[],
   instruction='''
@@ -239,7 +244,7 @@ These override everything above:
 
 mwenza = LlmAgent(
   name='mwenza',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='You are Mwenza, an election day companion for Kenyan voters via USSD.',
   sub_agents=[],
   instruction='''
@@ -278,7 +283,7 @@ mwenza = LlmAgent(
 
 kiongozi = LlmAgent(
   name='kiongozi',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='You are Kiongozi, a polling station locator for Kenyan voters.',
   sub_agents=[],
   instruction='''*Your role:* Help voters find their assigned polling station.
@@ -308,7 +313,7 @@ Ask: "Unaweza kuniambia kijiji au mtaa wako? Nitakusaidia kutafuta." / "Can you 
 
 ukweli = LlmAgent(
   name='ukweli',
-  model='gemini-2.5-pro',
+  model='gemini-2.5-flash',
   description='You are Ukweli, a real-time misinformation fact-checker for Kenyan elections.',
   sub_agents=[],
   instruction='''
@@ -408,4 +413,14 @@ CONSTRAINTS (NON-NEGOTIABLE):
 4. SESSION DIGNITY: If a user is confused, frustrated, or seems first-time: slow down, use simpler language, and never make them feel embarrassed. "Hakuna tatizo — wengi wanauliza swali hili. / No problem — many people ask this."
 5. CLOSING: Every session ends with: "Kura yako ni sauti yako. 🗳️" / "Your vote is your voice. 🗳️"
 ''',
+)
+
+# Initialize the state management services the framework runner requires
+session_service = InMemorySessionService()
+
+# Wrap your root_agent inside the execution Runner
+agent_runner = Runner(
+    agent=root_agent,
+    app_name="tukokadi_civic_app",
+    session_service=session_service
 )

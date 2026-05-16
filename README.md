@@ -71,6 +71,6 @@ Every specialist agent is equipped with the `VertexAiSearchTool`, connected dire
 ## 👥 Team
 
 *   **Eric Kaloki**
-*   **Jame Kilonzo**
+*   **James Kilonzo**
 *   **Maurice Ochola**
 *   **Dancan Onduso**

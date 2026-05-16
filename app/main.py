@@ -5,8 +5,9 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from app.agents import root_agent
+from app.agents import agent_runner
 from app.state import state_manager
+from google.genai import types
 
 app = FastAPI(title="TukoKadi AI")
 
@@ -21,23 +22,47 @@ class ChatRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
+    
 @app.post("/chat")
 async def chat(request: ChatRequest):
     user_id = request.user_id or str(uuid.uuid4())
     user_state = state_manager.get_user(user_id)
     
-    # In a real scenario, we might pass the state to the agent via context
-    # For now, we call the agent and get the response
     try:
-        # Note: google-adk run() usually returns an object or string
-        # We assume root_agent.run() is the entry point
-        response = root_agent.run(request.message)
+        full_response = ""
+        
+        # 1. Check if the session exists in the ADK runner; if not, create it
+        try:
+            await agent_runner.session_service.create_session(
+                app_name="tukokadi_civic_app",
+                session_id=user_id, 
+                user_id=user_id
+            )
+        except Exception as e:
+            print(f"Session creation error: {repr(e)}")
+            
+        # 2. FIX: Explicitly package the raw text into an ADK content schema
+        formatted_message = types.Content(
+            role='user',
+            parts=[types.Part(text=request.message)]
+        )
+        
+        # 2. Execute the formatted model packet via the Runner
+        async for chunk in agent_runner.run_async(user_id=user_id, session_id=user_id, new_message=formatted_message):
+            # Safe text extraction loop based on your ADK iteration scheme
+            if hasattr(chunk, 'content') and chunk.content.parts:
+                for part in chunk.content.parts:
+                    if part.text:
+                        full_response += part.text
+            elif hasattr(chunk, 'text'):
+                full_response += str(chunk.text)
+            else:
+                full_response += str(chunk)
+                
+        response = full_response
         
         # Simple heuristic to update XP if the response looks like a success from Mwalimu
-        # In a production app, the agent would use a Tool to update state
         if "XP" in str(response):
-             # Parse XP if possible, or just increment
              state_manager.update_user(user_id, {"xp": user_state["xp"] + 10})
         
         updated_state = state_manager.get_user(user_id)
@@ -49,11 +74,8 @@ async def chat(request: ChatRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 @app.post("/whatsapp/webhook")
 async def whatsapp_webhook(request: Request):
-    # Plug-and-play structure for WhatsApp (Twilio/Meta)
-    # 1. Parse incoming message
     form_data = await request.form()
     incoming_msg = form_data.get("Body") or form_data.get("text")
     sender = form_data.get("From") or form_data.get("sender")
@@ -61,18 +83,39 @@ async def whatsapp_webhook(request: Request):
     if not incoming_msg or not sender:
         return JSONResponse({"status": "ignored"})
 
-    # 2. Call the agent
     user_state = state_manager.get_user(sender)
-    response = root_agent.run(incoming_msg)
+    full_response = ""
     
-    # 3. Handle state updates
+    # Check/Create the user session mapping for incoming WhatsApp interactions
+    try:
+        await agent_runner.session_service.create_session(
+            app_name="tukokadi_civic_app",
+            session_id=sender, 
+            user_id=sender
+        )
+    except Exception as e:
+        print(f"Session creation error: {repr(e)}")
+        
+    # FIX: Enforce the explicit Content format structure
+    formatted_whatsapp_msg = types.Content(
+        role='user',
+        parts=[types.Part(text=incoming_msg)]
+    )
+    
+    async for chunk in agent_runner.run_async(user_id=sender, session_id=sender, new_message=formatted_whatsapp_msg):
+        if hasattr(chunk, 'content') and chunk.content.parts:
+            for part in chunk.content.parts:
+                if part.text:
+                    full_response += part.text
+        elif hasattr(chunk, 'text'):
+            full_response += str(chunk.text)
+        else:
+            full_response += str(chunk)
+            
+    response = full_response
+    
     if "XP" in str(response):
         state_manager.update_user(sender, {"xp": user_state["xp"] + 10})
-
-    # 4. Return response (Twilio format example)
-    # In production, you would call the WhatsApp API here
-    # For Twilio, you return TwiML:
-    # return Response(content=f"<Response><Message>{response}</Message></Response>", media_type="application/xml")
     
     return {
         "status": "success",
