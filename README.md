@@ -337,3 +337,6 @@ This project was built for the **Google Agent-a-thon Hackathon 2026** — Challe
 *Kura yako ni sauti yako. 🗳️*
 
 </div>
+
+
+![alt text](image.png)
