@@ -1,0 +1,7 @@
+.gcloudignore
+.git
+.gitignore
+venv/
+__pycache__/
+*.pyc
+app/data/user_state.json
