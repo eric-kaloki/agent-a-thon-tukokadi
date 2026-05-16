@@ -1,5 +1,7 @@
 import os
-os.environ["GOOGLE_API_KEY"] = "AIzaSyB6t9fYc7h1zcfN9t1EhhWrFD247vql2II"
+os.environ["GOOGLE_CLOUD_PROJECT"] = "charged-polymer-443312-t9"
+os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "TRUE"
 
 from google.adk.agents import LlmAgent
 from google.adk.tools import agent_tool
