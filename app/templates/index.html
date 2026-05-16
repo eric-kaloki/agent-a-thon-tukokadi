@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TukoKadi | Civic Education AI</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🗳️</span>
+                <h1>TukoKadi</h1>
+            </div>
+            <div class="user-stats" id="user-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="user-level">1</span>
+                    <span class="stat-title" id="user-title">Mwananchi Mchanga</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">XP</span>
+                    <span class="stat-value" id="user-xp">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="xp-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Streak</span>
+                    <span class="stat-value" id="user-streak">1 🔥</span>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <p>Kura yako ni sauti yako.</p>
+            </div>
+        </aside>
+
+        <main class="chat-interface">
+            <header class="chat-header">
+                <div class="agent-info">
+                    <div class="agent-avatar">M</div>
+                    <div>
+                        <h2>Msaidizi</h2>
+                        <span class="status">Online</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" title="Settings"><i data-lucide="settings"></i></button>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai">
+                    <div class="message-content">
+                        Karibu TukoKadi! Mimi ni Msaidizi. Unaweza kuniuliza kuhusu Katiba, mahali pa kupiga kura, au kuhakikisha habari unazopata.
+                        <br><br>
+                        Jaribu: <strong>"Ni nini haki yangu ya kupiga kura?"</strong> au <strong>"Nahitaji nini siku ya uchaguzi?"</strong>
+                    </div>
+                    <span class="timestamp">Hivi sasa</span>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="suggestions">
+                    <button onclick="sendQuickMsg('CHANGAMOTO')">📚 Daily Challenge</button>
+                    <button onclick="sendQuickMsg('Nipigie kura wapi?')">📍 Where to vote?</button>
+                    <button onclick="sendQuickMsg('Status')">🏆 My Progress</button>
+                </div>
+                <form class="input-container" id="chat-form">
+                    <input type="text" id="user-input" placeholder="Andika ujumbe wako hapa..." autocomplete="off">
+                    <button type="submit" class="send-btn">
+                        <i data-lucide="send"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
